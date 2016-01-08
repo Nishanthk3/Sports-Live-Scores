@@ -1,6 +1,5 @@
 package com.nishanth.sportsscore.rest;
 
-import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,8 +11,6 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -134,25 +131,21 @@ public class SportsScoreServiceController {
 		Espn espn = null;
 		try {
 			espn = objectMapper.readValue(str,Espn.class);
-		} catch (JsonParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JsonMappingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		List<Item> item = new ArrayList<Item>();
 		List<Match> match = espn.getMatch();
-		for(Match m : match)
+		if(match != null)
 		{
-			Item it = new Item();
-			it.setTitle(m.getTitle());
-			it.setDescription(m.getDescription());
-			it.setLink(cricket_href.replace("id", m.id));
-			item.add(it);
+			for(Match m : match)
+			{
+				Item it = new Item();
+				it.setTitle(m.getTitle());
+				it.setDescription(m.getDescription());
+				it.setLink(cricket_href.replace("id", m.id));
+				item.add(it);
+			}
 		}
 		return item;
 	}
@@ -193,26 +186,7 @@ public class SportsScoreServiceController {
 			String strArray[] = i.getTitle().split("v");
 			String strSplitArray1[] = strArray[0].trim().split(" ");
 			String strSplitArray2[] = strArray[1].trim().split(" ");
-//			if((Arrays.asList(teams).contains(strSplitArray1[0].toLowerCase()) || Arrays.asList(teams).contains(strSplitArray2[0].toLowerCase())))
-//			{
-//				if(strSplitArray1.length > 2)
-//				{
-//					if(strSplitArray1[2].trim().matches("[a-zA-Z]+") || strSplitArray1[2].trim().toLowerCase().contains("under"))
-//					{
-//						list1.add(i);
-//						continue;
-//					}
-//				}
-//				if(strSplitArray2.length > 2)
-//				{
-//					if(strSplitArray2[2].trim().matches("[a-zA-Z]+") || strSplitArray2[2].trim().toLowerCase().contains("under"))
-//					{
-//						list1.add(i);
-//						continue;
-//					}
-//				}
-//				//list.add(i);
-//			}
+			
 			if(!Arrays.asList(teams).contains(strSplitArray1[0].toLowerCase()) || !Arrays.asList(teams).contains(strSplitArray2[0].toLowerCase()))
 			{
 				list1.add(i);
