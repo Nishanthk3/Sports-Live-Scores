@@ -53,6 +53,12 @@ public class SportsScoreServiceController {
 	private String uefaChamps_football;
 	@Autowired
 	private String uefaChamps_football_videos;
+	@Autowired
+	private String bundesliga_football;
+	@Autowired
+	private String bundesliga_football_videos;
+	@Autowired
+	private String facup_football_videos;
 	
 	static String[] teams = {"australia", "india", "south", "southafrica",
 							"sri", "srilanka", "new", "newzealand", "bangladesh",
@@ -358,6 +364,110 @@ public class SportsScoreServiceController {
 		httpResp.setHeader("Access-Control-Allow-Origin","*");
 		Client client = Client.create();
 		WebResource webResource = client.resource(uefaChamps_football_videos);
+		ClientResponse response = webResource.get(ClientResponse.class);
+
+		if (response.getStatus() != 200) {
+			System.out.println("Response = "+response.getStatus());
+			System.out.println("Content  = "+response.getEntity(String.class));
+			throw new RuntimeException("Failed : HTTP error code : "+ response.getStatus());
+		}
+		String str = response.getEntity(String.class);
+		StringReader reader = new StringReader(str);
+		RSS rss = null;
+		try {
+			rss = (RSS) unmarshaller.unmarshal(reader);
+		} catch (JAXBException e) {
+			e.printStackTrace();
+		}
+		Channel channel = rss.getChannel();
+		List<Item> item  = channel.getItem();
+		List<Item> list = new ArrayList<Item>();
+		for(Item i : item)
+		{
+			if(i.getDescription().contains("<img style="))
+			{
+				i.setDescription(i.getDescription().split("/>")[1]);
+			}
+			list.add(i);
+		}
+		return list;
+	}
+	
+	@RequestMapping( value="bundesligafootball/rss",method = RequestMethod.GET)
+	public @ResponseBody List<List<Item>> bundesligaFootballRss(ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
+	{
+		httpResp.setHeader("Access-Control-Allow-Origin","*");
+		Client client = Client.create();
+		WebResource webResource = client.resource(bundesliga_football);
+		ClientResponse response = webResource.get(ClientResponse.class);
+
+		if (response.getStatus() != 200) {
+			System.out.println("Response = "+response.getStatus());
+			System.out.println("Content  = "+response.getEntity(String.class));
+			throw new RuntimeException("Failed : HTTP error code : "+ response.getStatus());
+		}
+		String str = response.getEntity(String.class);
+
+		StringReader reader = new StringReader(str);
+		RSS rss = null;
+		try {
+			rss = (RSS) unmarshaller.unmarshal(reader);
+		} catch (JAXBException e) {
+			e.printStackTrace();
+		}
+		Channel channel = rss.getChannel();
+		List<Item> item  = channel.getItem();
+		List<Item> list = new ArrayList<Item>();
+		List<List<Item>> res = new ArrayList<List<Item>>();
+		
+		list = bundesligaFootballVideosRss(model, httpReq, httpResp);
+		
+		res.add(list);
+		res.add(item);
+		return res;
+	}
+	
+	@RequestMapping( value="bundesligafootball/videos/rss",method = RequestMethod.GET)
+	public @ResponseBody List<Item> bundesligaFootballVideosRss(ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
+	{
+		httpResp.setHeader("Access-Control-Allow-Origin","*");
+		Client client = Client.create();
+		WebResource webResource = client.resource(bundesliga_football_videos);
+		ClientResponse response = webResource.get(ClientResponse.class);
+
+		if (response.getStatus() != 200) {
+			System.out.println("Response = "+response.getStatus());
+			System.out.println("Content  = "+response.getEntity(String.class));
+			throw new RuntimeException("Failed : HTTP error code : "+ response.getStatus());
+		}
+		String str = response.getEntity(String.class);
+		StringReader reader = new StringReader(str);
+		RSS rss = null;
+		try {
+			rss = (RSS) unmarshaller.unmarshal(reader);
+		} catch (JAXBException e) {
+			e.printStackTrace();
+		}
+		Channel channel = rss.getChannel();
+		List<Item> item  = channel.getItem();
+		List<Item> list = new ArrayList<Item>();
+		for(Item i : item)
+		{
+			if(i.getDescription().contains("<img style="))
+			{
+				i.setDescription(i.getDescription().split("/>")[1]);
+			}
+			list.add(i);
+		}
+		return list;
+	}
+	
+	@RequestMapping( value="facupfootball/rss",method = RequestMethod.GET)
+	public @ResponseBody List<Item> facupfootballVideosRss(ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
+	{
+		httpResp.setHeader("Access-Control-Allow-Origin","*");
+		Client client = Client.create();
+		WebResource webResource = client.resource(facup_football_videos);
 		ClientResponse response = webResource.get(ClientResponse.class);
 
 		if (response.getStatus() != 200) {
