@@ -27,6 +27,7 @@ import com.nishanth.sportsscore.api.Channel;
 import com.nishanth.sportsscore.api.Espn;
 import com.nishanth.sportsscore.api.Item;
 import com.nishanth.sportsscore.api.Match;
+import com.nishanth.sportsscore.api.News;
 import com.nishanth.sportsscore.api.RSS;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
@@ -42,6 +43,8 @@ public class SportsScoreServiceController {
 	private String live_cricket;
 	@Autowired
 	private String cricket_href;
+	@Autowired
+	private String cricket_news_href;
 	@Autowired
 	private String epl_football;
 	@Autowired
@@ -114,7 +117,7 @@ public class SportsScoreServiceController {
 	}
 	
 	@RequestMapping( value="cricket/live",method = RequestMethod.GET)
-	public @ResponseBody List<Item> liveCricket(ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
+	public @ResponseBody List<List<Item>> liveCricket(ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
 	{
 		httpResp.setHeader("Access-Control-Allow-Origin","*");
 		Client client = Client.create();
@@ -134,8 +137,11 @@ public class SportsScoreServiceController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		List<Item> item = new ArrayList<Item>();
+		List<List<Item>> res = new ArrayList<List<Item>>();
+		List<Item> scoresItem = new ArrayList<Item>();
+		List<Item> newsItem = new ArrayList<Item>();
 		List<Match> match = espn.getMatch();
+		List<News> news = espn.getNews();
 		if(match != null)
 		{
 			for(Match m : match)
@@ -144,10 +150,23 @@ public class SportsScoreServiceController {
 				it.setTitle(m.getTitle());
 				it.setDescription(m.getDescription());
 				it.setLink(cricket_href.replace("id", m.id));
-				item.add(it);
+				scoresItem.add(it);
 			}
 		}
-		return item;
+		if(news != null)
+		{
+			for(News n : news)
+			{
+				Item it = new Item();
+				it.setTitle(n.getT());
+				it.setDescription(n.getS());
+				it.setLink(cricket_news_href.replace("data", n.b).replace("id", n.id));
+				newsItem.add(it);
+			}
+		}
+		res.add(scoresItem);
+		res.add(newsItem);
+		return res;
 	}
 	
 	@RequestMapping( value="cricket/rss",method = RequestMethod.GET)
@@ -175,7 +194,7 @@ public class SportsScoreServiceController {
 		}
 		Channel channel = rss.getChannel();
 		List<Item> item  = channel.getItem();
-		List<Item> list = new ArrayList<Item>();
+		List<List<Item>> list = new ArrayList<List<Item>>();
 		List<Item> list1 = new ArrayList<Item>();
 		List<List<Item>> res = new ArrayList<List<Item>>();
 		
@@ -192,8 +211,9 @@ public class SportsScoreServiceController {
 				list1.add(i);
 			}
 		}
-		res.add(list);
-		res.add(list1);
+		res.add(list.get(0));// live international matches
+		res.add(list1); //regional matches
+		res.add(list.get(1)); //news
 		return res;
 	}
 

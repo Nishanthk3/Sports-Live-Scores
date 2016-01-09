@@ -29,6 +29,9 @@
 	<bean id="cricket_href" class="org.springframework.jndi.JndiObjectFactoryBean">
 	    <property name="jndiName" value="java:comp/env/cricket_href"/>
 	</bean>
+	<bean id="cricket_news_href" class="org.springframework.jndi.JndiObjectFactoryBean">
+	    <property name="jndiName" value="java:comp/env/cricket_news_href"/>
+	</bean>
 	<bean id="epl_football" class="org.springframework.jndi.JndiObjectFactoryBean">
 	    <property name="jndiName" value="java:comp/env/epl_football"/>
 	</bean>
