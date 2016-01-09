@@ -44,4 +44,7 @@
 	<bean id="uefaChamps_football_videos" class="org.springframework.jndi.JndiObjectFactoryBean">
 	    <property name="jndiName" value="java:comp/env/uefaChamps_football_videos"/>
 	</bean>
+	<bean id="facup_football_videos" class="org.springframework.jndi.JndiObjectFactoryBean">
+	    <property name="jndiName" value="java:comp/env/facup_football_videos"/>
+	</bean>
 </beans>
