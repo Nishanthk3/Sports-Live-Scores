@@ -20,6 +20,9 @@
 	</property>
 	</bean>
 	
+	<bean id="extensionVersion" class="org.springframework.jndi.JndiObjectFactoryBean">
+	    <property name="jndiName" value="java:comp/env/extensionVersion"/>
+	</bean>
 	<bean id="cricket" class="org.springframework.jndi.JndiObjectFactoryBean">
 	    <property name="jndiName" value="java:comp/env/cricket"/>
 	</bean>

@@ -1,9 +1,11 @@
 package com.nishanth.sportsscore.rest;
 
+import java.io.File;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Scanner;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -37,6 +39,8 @@ import com.sun.jersey.api.client.WebResource;
 @RequestMapping("/")
 public class SportsScoreServiceController {
 	
+	@Autowired
+	private String extensionVersion;
 	@Autowired
 	private String cricket;
 	@Autowired
@@ -104,7 +108,8 @@ public class SportsScoreServiceController {
 			throw new RuntimeException("Failed : HTTP error code : "+ response.getStatus());
 		}
 		String str = response.getEntity(String.class);
-
+		str=str.replace("&", "&amp;");
+		
 		StringReader reader = new StringReader(str);
 		RSS rss = null;
 		try {
@@ -137,6 +142,8 @@ public class SportsScoreServiceController {
 			throw new RuntimeException("Failed : HTTP error code : "+ response.getStatus());
 		}
 		String str = response.getEntity(String.class);
+		str=str.replace("&", "&amp;");
+		
 		Espn espn = null;
 		try {
 			espn = objectMapper.readValue(str,Espn.class);
@@ -190,7 +197,8 @@ public class SportsScoreServiceController {
 			throw new RuntimeException("Failed : HTTP error code : "+ response.getStatus());
 		}
 		String str = response.getEntity(String.class);
-
+		str=str.replace("&", "&amp;");
+		
 		StringReader reader = new StringReader(str);
 		RSS rss = null;
 		try {
@@ -237,7 +245,8 @@ public class SportsScoreServiceController {
 			throw new RuntimeException("Failed : HTTP error code : "+ response.getStatus());
 		}
 		String str = response.getEntity(String.class);
-
+		str=str.replace("&", "&amp;");
+		
 		StringReader reader = new StringReader(str);
 		RSS rss = null;
 		try {
@@ -287,6 +296,8 @@ public class SportsScoreServiceController {
 			throw new RuntimeException("Failed : HTTP error code : "+ response.getStatus());
 		}
 		String str = response.getEntity(String.class);
+		str=str.replace("&", "&amp;");
+		
 		StringReader reader = new StringReader(str);
 		RSS rss = null;
 		try {
@@ -322,7 +333,8 @@ public class SportsScoreServiceController {
 			throw new RuntimeException("Failed : HTTP error code : "+ response.getStatus());
 		}
 		String str = response.getEntity(String.class);
-
+		str=str.replace("&", "&amp;");
+		
 		StringReader reader = new StringReader(str);
 		RSS rss = null;
 		try {
@@ -372,6 +384,8 @@ public class SportsScoreServiceController {
 			throw new RuntimeException("Failed : HTTP error code : "+ response.getStatus());
 		}
 		String str = response.getEntity(String.class);
+		str=str.replace("&", "&amp;");
+		
 		StringReader reader = new StringReader(str);
 		RSS rss = null;
 		try {
@@ -407,7 +421,8 @@ public class SportsScoreServiceController {
 			throw new RuntimeException("Failed : HTTP error code : "+ response.getStatus());
 		}
 		String str = response.getEntity(String.class);
-
+		str=str.replace("&", "&amp;");
+		
 		StringReader reader = new StringReader(str);
 		RSS rss = null;
 		try {
@@ -441,6 +456,8 @@ public class SportsScoreServiceController {
 			throw new RuntimeException("Failed : HTTP error code : "+ response.getStatus());
 		}
 		String str = response.getEntity(String.class);
+		str=str.replace("&", "&amp;");
+		
 		StringReader reader = new StringReader(str);
 		RSS rss = null;
 		try {
@@ -476,6 +493,8 @@ public class SportsScoreServiceController {
 			throw new RuntimeException("Failed : HTTP error code : "+ response.getStatus());
 		}
 		String str = response.getEntity(String.class);
+		str=str.replace("&", "&amp;");
+		
 		StringReader reader = new StringReader(str);
 		RSS rss = null;
 		try {
@@ -496,7 +515,13 @@ public class SportsScoreServiceController {
 		}
 		return list;
 	}
-	
+
+	@RequestMapping( value="extensionVersion",method = RequestMethod.GET)
+	public @ResponseBody String extensionVersion(ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
+	{
+		httpResp.setHeader("Access-Control-Allow-Origin","*");
+		return extensionVersion;
+	}
 	@Autowired
 	private void setRequestMappingHandlerAdapter(RequestMappingHandlerAdapter mappingManager) {
 		if(mappingManager == null) {
