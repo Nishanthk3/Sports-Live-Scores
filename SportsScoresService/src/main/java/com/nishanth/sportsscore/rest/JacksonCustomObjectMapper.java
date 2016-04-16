@@ -1,13 +1,10 @@
 package com.nishanth.sportsscore.rest;
 
-import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerator.Feature;
 import org.codehaus.jackson.map.AnnotationIntrospector;
 import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.DeserializerProvider;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
-import org.codehaus.jackson.map.SerializerProvider;
 import org.codehaus.jackson.map.introspect.JacksonAnnotationIntrospector;
 
 public class JacksonCustomObjectMapper extends ObjectMapper {

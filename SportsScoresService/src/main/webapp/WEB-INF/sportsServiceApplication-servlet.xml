@@ -19,7 +19,23 @@
 		</list>
 	</property>
 	</bean>
-	
+
+	<bean id="CODE" class="org.springframework.jndi.JndiObjectFactoryBean">
+	    <property name="jndiName" value="java:comp/env/CODE"/>
+	</bean>
+	<bean id="local" class="org.springframework.jndi.JndiObjectFactoryBean">
+	    <property name="jndiName" value="java:comp/env/local"/>
+	</bean>
+	<bean id="publicUrl" class="org.springframework.jndi.JndiObjectFactoryBean">
+	    <property name="jndiName" value="java:comp/env/publicUrl"/>
+	</bean>
+	<bean id="developersExtension" class="org.springframework.jndi.JndiObjectFactoryBean">
+	    <property name="jndiName" value="java:comp/env/developersExtension"/>
+	</bean>
+	<bean id="publicExtension" class="org.springframework.jndi.JndiObjectFactoryBean">
+	    <property name="jndiName" value="java:comp/env/publicExtension"/>
+	</bean>
+		
 	<bean id="extensionVersion" class="org.springframework.jndi.JndiObjectFactoryBean">
 	    <property name="jndiName" value="java:comp/env/extensionVersion"/>
 	</bean>
@@ -59,4 +75,10 @@
 	<bean id="laliga_football_videos" class="org.springframework.jndi.JndiObjectFactoryBean">
 	    <property name="jndiName" value="java:comp/env/laliga_football_videos"/>
 	</bean>
+	<bean id="aus_open2016_live_scores" class="org.springframework.jndi.JndiObjectFactoryBean">
+	    <property name="jndiName" value="java:comp/env/aus_open2016_live_scores"/>
+	</bean>
+	<bean id="aus_open2016_all_scores" class="org.springframework.jndi.JndiObjectFactoryBean">
+	    <property name="jndiName" value="java:comp/env/aus_open2016_all_scores"/>
+	</bean>	
 </beans>

@@ -1,11 +1,9 @@
 package com.nishanth.sportsscore.rest;
 
-import java.io.File;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Scanner;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,6 +20,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 
@@ -38,6 +37,16 @@ import com.sun.jersey.api.client.WebResource;
 @Controller
 @RequestMapping("/")
 public class SportsScoreServiceController {
+	@Autowired
+	private String CODE;
+	@Autowired
+	private String local;
+	@Autowired
+	private String publicUrl;
+	@Autowired
+	private String developersExtension;
+	@Autowired
+	private String publicExtension;
 	
 	@Autowired
 	private String extensionVersion;
@@ -95,9 +104,18 @@ public class SportsScoreServiceController {
 		return "Welcome to Sports Scores Service, Version : "+version;
 	}
 	
-	@RequestMapping( value="cricket",method = RequestMethod.GET)
-	public @ResponseBody String cricket(ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
+	@RequestMapping( value="cricket/code",method = RequestMethod.GET)
+	public @ResponseBody String cricketCode(@RequestParam("code") String code, ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
 	{
+		if(code.equalsIgnoreCase(CODE))
+			return cricket(code, model, httpReq, httpResp);
+		return null;
+	}
+	@RequestMapping( value="cricket",method = RequestMethod.GET)
+	public @ResponseBody String cricket(String code, ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
+	{
+		if(checkDomain(httpReq,code) == false)
+			return null;
 		httpResp.setHeader("Access-Control-Allow-Origin","*");
 		Client client = Client.create();
 		WebResource webResource = client.resource(cricket);
@@ -128,10 +146,19 @@ public class SportsScoreServiceController {
 		}
 		return "CRICKET \n"+list.toString().split("\\[")[1].split("\\]")[0].replace(",", "\n");
 	}
-	
-	@RequestMapping( value="cricket/live",method = RequestMethod.GET)
-	public @ResponseBody List<List<Item>> liveCricket(ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
+
+	@RequestMapping( value="cricket/live/code",method = RequestMethod.GET)
+	public @ResponseBody List<List<Item>> liveCricketCode(@RequestParam("code") String code, ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
 	{
+		if(code.equalsIgnoreCase(CODE))
+			return liveCricket(code, model, httpReq, httpResp);
+		return null;
+	}
+	@RequestMapping( value="cricket/live",method = RequestMethod.GET)
+	public @ResponseBody List<List<Item>> liveCricket(String code, ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
+	{
+		if(checkDomain(httpReq,code) == false)
+			return null;
 		httpResp.setHeader("Access-Control-Allow-Origin","*");
 		Client client = Client.create();
 		WebResource webResource = client.resource(live_cricket);
@@ -144,7 +171,6 @@ public class SportsScoreServiceController {
 			throw new RuntimeException("Failed : HTTP error code : "+ response.getStatus());
 		}
 		String str = response.getEntity(String.class);
-		str=str.replace("&", "&amp;");
 		
 		Espn espn = null;
 		try {
@@ -184,9 +210,18 @@ public class SportsScoreServiceController {
 		return res;
 	}
 	
-	@RequestMapping( value="cricket/rss",method = RequestMethod.GET)
-	public @ResponseBody List<List<Item>> cricketRss(ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
+	@RequestMapping( value="cricket/rss/code",method = RequestMethod.GET)
+	public @ResponseBody List<List<Item>> cricketRssCode(@RequestParam("code") String code, ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
 	{
+		if(code.equalsIgnoreCase(CODE))
+			return cricketRss(code, model, httpReq, httpResp);
+		return null;
+	}
+	@RequestMapping( value="cricket/rss",method = RequestMethod.GET)
+	public @ResponseBody List<List<Item>> cricketRss(String code, ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
+	{
+		if(checkDomain(httpReq,code) == false)
+			return null;
 		httpResp.setHeader("Access-Control-Allow-Origin","*");
 		Client client = Client.create();
 		WebResource webResource = client.resource(cricket);
@@ -214,7 +249,7 @@ public class SportsScoreServiceController {
 		List<Item> list1 = new ArrayList<Item>();
 		List<List<Item>> res = new ArrayList<List<Item>>();
 		
-		list = liveCricket(model, httpReq, httpResp);
+		list = liveCricket(code, model, httpReq, httpResp);
 		
 		for(Item i : item)
 		{
@@ -227,15 +262,34 @@ public class SportsScoreServiceController {
 				list1.add(i);
 			}
 		}
-		res.add(list.get(0));// live international matches
-		res.add(list1); //regional matches
+		/** If there are no live international matches regional matches matches and premier leagues matched will be displayed on the top view in the UI*/
+		if(list.get(0).size() == 0)
+		{
+			res.add(list1); //regional matches
+			res.add(list.get(0)); // live international matches
+		}
+		else
+		{
+			res.add(list.get(0));// live international matches
+			res.add(list1); //regional matches
+		}
 		res.add(list.get(1)); //news
+		
 		return res;
 	}
 
-	@RequestMapping( value="eplfootball/rss",method = RequestMethod.GET)
-	public @ResponseBody List<List<Item>> eplFootballRss(ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
+	@RequestMapping( value="eplfootball/rss/code",method = RequestMethod.GET)
+	public @ResponseBody List<List<Item>> eplFootballRssCode(@RequestParam("code") String code, ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
 	{
+		if(code.equalsIgnoreCase(CODE))
+			return eplFootballRss(code, model, httpReq, httpResp);
+		return null;
+	}
+	@RequestMapping( value="eplfootball/rss",method = RequestMethod.GET)
+	public @ResponseBody List<List<Item>> eplFootballRss(String code, ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
+	{
+		if(checkDomain(httpReq,code) == false)
+			return null;
 		httpResp.setHeader("Access-Control-Allow-Origin","*");
 		Client client = Client.create();
 		WebResource webResource = client.resource(epl_football);
@@ -262,7 +316,7 @@ public class SportsScoreServiceController {
 		List<Item> list1 = new ArrayList<Item>();
 		List<List<Item>> res = new ArrayList<List<Item>>();
 		
-		list = eplFootballVideosRss(model, httpReq, httpResp);
+		list = eplFootballVideosRss(code, model, httpReq, httpResp);
 		
 		for(Item i : item)
 		{
@@ -284,9 +338,18 @@ public class SportsScoreServiceController {
 		return res;
 	}
 
-	@RequestMapping( value="eplfootball/videos/rss",method = RequestMethod.GET)
-	public @ResponseBody List<Item> eplFootballVideosRss(ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
+	@RequestMapping( value="eplfootball/videos/rss/code",method = RequestMethod.GET)
+	public @ResponseBody List<Item> eplFootballVideosRssCode(@RequestParam("code") String code, ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
 	{
+		if(code.equalsIgnoreCase(CODE))
+			return eplFootballVideosRss(code, model, httpReq, httpResp);
+		return null;
+	}
+	@RequestMapping( value="eplfootball/videos/rss",method = RequestMethod.GET)
+	public @ResponseBody List<Item> eplFootballVideosRss(String code, ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
+	{
+		if(checkDomain(httpReq,code) == false)
+			return null;
 		httpResp.setHeader("Access-Control-Allow-Origin","*");
 		Client client = Client.create();
 		WebResource webResource = client.resource(epl_football_videos);
@@ -324,10 +387,19 @@ public class SportsScoreServiceController {
 		}
 		return list;
 	}
-
-	@RequestMapping( value="uefachampsfootball/rss",method = RequestMethod.GET)
-	public @ResponseBody List<List<Item>> champsFootballRss(ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
+	
+	@RequestMapping( value="uefachampsfootball/rss/code",method = RequestMethod.GET)
+	public @ResponseBody List<List<Item>> champsFootballRssCode(@RequestParam("code") String code, ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
 	{
+		if(code.equalsIgnoreCase(CODE))
+			return champsFootballRss(code, model, httpReq, httpResp);
+		return null;
+	}
+	@RequestMapping( value="uefachampsfootball/rss",method = RequestMethod.GET)
+	public @ResponseBody List<List<Item>> champsFootballRss(String code, ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
+	{
+		if(checkDomain(httpReq,code) == false)
+			return null;
 		httpResp.setHeader("Access-Control-Allow-Origin","*");
 		Client client = Client.create();
 		WebResource webResource = client.resource(uefaChamps_football);
@@ -354,7 +426,7 @@ public class SportsScoreServiceController {
 		List<Item> list1 = new ArrayList<Item>();
 		List<List<Item>> res = new ArrayList<List<Item>>();
 		
-		list = uefaChampsFootballVideosRss(model, httpReq, httpResp);
+		list = uefaChampsFootballVideosRss(code, model, httpReq, httpResp);
 		
 		for(Item i : item)
 		{
@@ -376,9 +448,18 @@ public class SportsScoreServiceController {
 		return res;
 	}
 	
-	@RequestMapping( value="uefachampsfootball/videos/rss",method = RequestMethod.GET)
-	public @ResponseBody List<Item> uefaChampsFootballVideosRss(ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
+	@RequestMapping( value="uefachampsfootball/videos/rss/code",method = RequestMethod.GET)
+	public @ResponseBody List<Item> uefaChampsFootballVideosRssCode(@RequestParam("code") String code, ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
 	{
+		if(code.equalsIgnoreCase(CODE))
+			return uefaChampsFootballVideosRss(code, model, httpReq, httpResp);
+		return null;
+	}
+	@RequestMapping( value="uefachampsfootball/videos/rss",method = RequestMethod.GET)
+	public @ResponseBody List<Item> uefaChampsFootballVideosRss(String code, ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
+	{
+		if(checkDomain(httpReq,code) == false)
+			return null;
 		httpResp.setHeader("Access-Control-Allow-Origin","*");
 		Client client = Client.create();
 		WebResource webResource = client.resource(uefaChamps_football_videos);
@@ -417,9 +498,18 @@ public class SportsScoreServiceController {
 		return list;
 	}
 	
-	@RequestMapping( value="bundesligafootball/rss",method = RequestMethod.GET)
-	public @ResponseBody List<List<Item>> bundesligaFootballRss(ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
+	@RequestMapping( value="bundesligafootball/rss/code",method = RequestMethod.GET)
+	public @ResponseBody List<List<Item>> bundesligaFootballRssCode(@RequestParam("code") String code, ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
 	{
+		if(code.equalsIgnoreCase(CODE))
+			return bundesligaFootballRss(code, model, httpReq, httpResp);
+		return null;
+	}
+	@RequestMapping( value="bundesligafootball/rss",method = RequestMethod.GET)
+	public @ResponseBody List<List<Item>> bundesligaFootballRss(String code, ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
+	{
+		if(checkDomain(httpReq,code) == false)
+			return null;
 		httpResp.setHeader("Access-Control-Allow-Origin","*");
 		Client client = Client.create();
 		WebResource webResource = client.resource(bundesliga_football);
@@ -445,16 +535,25 @@ public class SportsScoreServiceController {
 		List<Item> list = new ArrayList<Item>();
 		List<List<Item>> res = new ArrayList<List<Item>>();
 		
-		list = bundesligaFootballVideosRss(model, httpReq, httpResp);
+		list = bundesligaFootballVideosRss(code, model, httpReq, httpResp);
 		
 		res.add(list);
 		res.add(item);
 		return res;
 	}
 	
-	@RequestMapping( value="bundesligafootball/videos/rss",method = RequestMethod.GET)
-	public @ResponseBody List<Item> bundesligaFootballVideosRss(ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
+	@RequestMapping( value="bundesligafootball/videos/rss/code",method = RequestMethod.GET)
+	public @ResponseBody List<Item> bundesligaFootballVideosRssCode(@RequestParam("code") String code, ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
 	{
+		if(code.equalsIgnoreCase(CODE))
+			return bundesligaFootballVideosRss(code, model, httpReq, httpResp);
+		return null;
+	}
+	@RequestMapping( value="bundesligafootball/videos/rss",method = RequestMethod.GET)
+	public @ResponseBody List<Item> bundesligaFootballVideosRss(String code, ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
+	{
+		if(checkDomain(httpReq,code) == false)
+			return null;
 		httpResp.setHeader("Access-Control-Allow-Origin","*");
 		Client client = Client.create();
 		WebResource webResource = client.resource(bundesliga_football_videos);
@@ -493,9 +592,18 @@ public class SportsScoreServiceController {
 		return list;
 	}
 	
-	@RequestMapping( value="facupfootball/rss",method = RequestMethod.GET)
-	public @ResponseBody List<Item> facupfootballVideosRss(ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
+	@RequestMapping( value="facupfootball/rss/code",method = RequestMethod.GET)
+	public @ResponseBody List<Item> facupfootballVideosRssCode(@RequestParam("code") String code, ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
 	{
+		if(code.equalsIgnoreCase(CODE))
+			return facupfootballVideosRss(code, model, httpReq, httpResp);
+		return null;
+	}
+	@RequestMapping( value="facupfootball/rss",method = RequestMethod.GET)
+	public @ResponseBody List<Item> facupfootballVideosRss(String code, ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
+	{
+		if(checkDomain(httpReq,code) == false)
+			return null;
 		httpResp.setHeader("Access-Control-Allow-Origin","*");
 		Client client = Client.create();
 		WebResource webResource = client.resource(facup_football_videos);
@@ -534,9 +642,18 @@ public class SportsScoreServiceController {
 		return list;
 	}
 	
-	@RequestMapping( value="laligafootball/rss",method = RequestMethod.GET)
-	public @ResponseBody List<Item> laligaFootballVideosRss(ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
+	@RequestMapping( value="laligafootball/rss/code",method = RequestMethod.GET)
+	public @ResponseBody List<Item> laligaFootballVideosRssCode(@RequestParam("code") String code, ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
 	{
+		if(code.equalsIgnoreCase(CODE))
+			return laligaFootballVideosRss(code, model, httpReq, httpResp);
+		return null;
+	}
+	@RequestMapping( value="laligafootball/rss",method = RequestMethod.GET)
+	public @ResponseBody List<Item> laligaFootballVideosRss(String code, ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
+	{
+		if(checkDomain(httpReq,code) == false)
+			return null;
 		httpResp.setHeader("Access-Control-Allow-Origin","*");
 		Client client = Client.create();
 		WebResource webResource = client.resource(laliga_football_videos);
@@ -575,11 +692,33 @@ public class SportsScoreServiceController {
 		return list;
 	}
 	@RequestMapping( value="extensionVersion",method = RequestMethod.GET)
-	public @ResponseBody String extensionVersion(ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
+	public @ResponseBody String extensionVersion(String code, ModelMap model, HttpServletRequest httpReq, HttpServletResponse httpResp)
 	{
 		httpResp.setHeader("Access-Control-Allow-Origin","*");
 		return extensionVersion;
 	}
+	
+	private boolean checkDomain(HttpServletRequest httpReq, String code)
+	{
+		if(httpReq.getHeader("Origin") == null)
+		{
+			if(!httpReq.getLocalName().equalsIgnoreCase(local))
+			{
+				if(code == null)
+					return false;
+				if(httpReq.getLocalName().equalsIgnoreCase(publicUrl) && !code.equalsIgnoreCase(CODE))
+					return false;
+			}
+		}
+		else if(httpReq.getHeader("Origin").equalsIgnoreCase(developersExtension)){}
+		else if(httpReq.getHeader("Origin").equalsIgnoreCase(publicExtension)){}
+		else
+		{
+			return false;
+		}
+		return true;
+	}
+	@SuppressWarnings("rawtypes")
 	@Autowired
 	private void setRequestMappingHandlerAdapter(RequestMappingHandlerAdapter mappingManager) {
 		if(mappingManager == null) {
