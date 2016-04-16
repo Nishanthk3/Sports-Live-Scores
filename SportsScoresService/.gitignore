@@ -1,4 +1,4 @@
-SportsScoresService/target
-/target
-SportsScoresService/.settings
-/.settings
+.classpath
+.project
+.settings/
+target/
